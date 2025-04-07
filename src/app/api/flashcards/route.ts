@@ -1,49 +1,114 @@
-import { writeFile, readFile } from 'fs/promises'
-import { join } from 'path'
-import { NextResponse } from 'next/server'
+import { NextResponse } from "next/server"
+import fs from "fs"
+import path from "path"
+import { v4 as uuidv4 } from "uuid"
+import type { FlashcardType } from "@/types/Flashcard"
 
-const filePath = join(process.cwd(), 'data', 'flashcards.json')
+// Caminho para o arquivo JSON
+const dataFilePath = path.join(process.cwd(), "data", "flashcards.json")
 
-// GET: Retorna todos os flashcards
+// Função para garantir que o diretório e o arquivo existam
+function ensureFileExists() {
+  try {
+    const dirPath = path.join(process.cwd(), "data")
+
+    // Verifica se o diretório existe, se não, cria
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true })
+      console.log("Diretório data criado com sucesso")
+    }
+
+    // Verifica se o arquivo existe, se não, cria com um array vazio
+    if (!fs.existsSync(dataFilePath)) {
+      fs.writeFileSync(dataFilePath, JSON.stringify([]))
+      console.log("Arquivo flashcards.json criado com sucesso")
+    }
+
+    return true
+  } catch (error) {
+    console.error("Erro ao verificar/criar arquivo:", error)
+    return false
+  }
+}
+
+// Função para ler os flashcards do arquivo
+function getFlashcards(): FlashcardType[] {
+  if (!ensureFileExists()) {
+    return []
+  }
+
+  try {
+    const data = fs.readFileSync(dataFilePath, "utf8")
+    return JSON.parse(data)
+  } catch (error) {
+    console.error("Erro ao ler flashcards:", error)
+    return []
+  }
+}
+
+// Função para salvar os flashcards no arquivo
+function saveFlashcards(flashcards: FlashcardType[]): boolean {
+  if (!ensureFileExists()) {
+    return false
+  }
+
+  try {
+    fs.writeFileSync(dataFilePath, JSON.stringify(flashcards, null, 2))
+    return true
+  } catch (error) {
+    console.error("Erro ao salvar flashcards:", error)
+    return false
+  }
+}
+
+// GET - Obter todos os flashcards
 export async function GET() {
   try {
-    const fileData = await readFile(filePath, 'utf8')
-    const flashcards = JSON.parse(fileData)
-    return NextResponse.json(flashcards)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const flashcards = getFlashcards()
+    console.log("Flashcards carregados:", flashcards.length)
+    return NextResponse.json({ flashcards })
   } catch (error) {
-    return NextResponse.json({ error: 'Erro ao ler flashcards' }, { status: 500 })
+    console.error("Erro ao buscar flashcards:", error)
+    return NextResponse.json({ error: "Erro ao buscar flashcards", flashcards: [] }, { status: 500 })
   }
 }
 
-// POST: Cria um novo flashcard
-export async function POST(req: Request) {
-  const data = await req.json()
-
-  const hasAnyValue = ['title', 'subtitle', 'description', 'backContent'].some(
-    (key) => data[key]?.trim()
-  )
-
-  if (!hasAnyValue) {
-    return NextResponse.json({ error: 'Preencha pelo menos um campo.' }, { status: 400 })
-  }
-
-  const newFlashcard = {
-    id: crypto.randomUUID(),
-    ...data,
-    createdAt: new Date().toISOString()
-  }
-
+// POST - Criar um novo flashcard
+export async function POST(request: Request) {
   try {
-    const fileData = await readFile(filePath, 'utf8')
-    const flashcards = JSON.parse(fileData)
-    flashcards.push(newFlashcard)
+    const body = await request.json()
+    const { title, subtitle, description, backContent, category, subject } = body
 
-    await writeFile(filePath, JSON.stringify(flashcards, null, 2), 'utf8')
+    // Criar novo flashcard
+    const newFlashcard: FlashcardType = {
+      id: uuidv4(),
+      title: title || "",
+      subtitle: subtitle || "",
+      description: description || "",
+      backContent: backContent || "",
+      category: category || "",
+      subject: subject || "",
+      createdAt: new Date().toISOString(),
+    }
 
-    return NextResponse.json({ success: true, flashcard: newFlashcard })
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // Obter flashcards existentes e adicionar o novo
+    const flashcards = getFlashcards()
+    flashcards.unshift(newFlashcard) // Adiciona no início da lista
+
+    // Salvar flashcards atualizados
+    const saved = saveFlashcards(flashcards)
+
+    if (!saved) {
+      throw new Error("Falha ao salvar flashcard")
+    }
+
+    return NextResponse.json({
+      message: "Flashcard criado com sucesso",
+      flashcard: newFlashcard,
+    })
   } catch (error) {
-    return NextResponse.json({ error: 'Erro ao salvar flashcard' }, { status: 500 })
+    console.error("Erro ao criar flashcard:", error)
+    return NextResponse.json({ error: "Erro ao criar flashcard" }, { status: 500 })
   }
 }
+

@@ -1,167 +1,242 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Save, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { FlashcardType } from "@/types/Flashcard";
+import type React from "react"
+
+import { useState, useEffect } from "react"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
+import { Save, CheckCircle, AlertTriangle, XCircle, X } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import type { FlashcardType } from "@/types/Flashcard"
 
 export default function FlashcardForm({
   onClose,
   onFlashcardCreated,
 }: {
-  onClose: () => void;
-  onFlashcardCreated: (newFlashcard: FlashcardType) => void;
+  onClose: () => void
+  onFlashcardCreated: (newFlashcard: FlashcardType) => void
 }) {
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState(false)
   const [form, setForm] = useState({
     title: "",
     subtitle: "",
     description: "",
     backContent: "",
-  });
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showValidationModal, setShowValidationModal] = useState(false);
-  const [showErrorModal, setShowErrorModal] = useState(false);
+    category: "",
+    subject: "",
+  })
+  const [categories, setCategories] = useState<string[]>([])
+  const [subjects, setSubjects] = useState<string[]>([])
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [showValidationModal, setShowValidationModal] = useState(false)
+  const [showErrorModal, setShowErrorModal] = useState(false)
+
+  // Carregar categorias e assuntos ao iniciar
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await fetch("/api/settings")
+        if (res.ok) {
+          const data = await res.json()
+          setCategories(data.categories || [])
+          setSubjects(data.subjects || [])
+        }
+      } catch (error) {
+        console.error("Erro ao carregar configurações:", error)
+      }
+    }
+
+    fetchSettings()
+  }, [])
 
   useEffect(() => {
     if (showSuccessModal) {
       // Após mostrar o modal de sucesso, espera 2 segundos antes de fechar o formulário
       const timer = setTimeout(() => {
-        setShowSuccessModal(false);
+        setShowSuccessModal(false)
         // Fechar o formulário após 2 segundos, mas apenas se o botão "Salvar" for pressionado
         if (isSaving) {
-          onClose();
+          onClose()
         }
-      }, 2000);
-      return () => clearTimeout(timer);
+      }, 2000)
+      return () => clearTimeout(timer)
     }
-  }, [showSuccessModal, isSaving]);
+  }, [showSuccessModal, isSaving, onClose])
 
   useEffect(() => {
     if (showValidationModal) {
-      const timer = setTimeout(() => setShowValidationModal(false), 2000);
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => setShowValidationModal(false), 2000)
+      return () => clearTimeout(timer)
     }
-  }, [showValidationModal]);
+  }, [showValidationModal])
 
   useEffect(() => {
     if (showErrorModal) {
-      const timer = setTimeout(() => setShowErrorModal(false), 2000);
-      return () => clearTimeout(timer);
+      const timer = setTimeout(() => setShowErrorModal(false), 2000)
+      return () => clearTimeout(timer)
     }
-  }, [showErrorModal]);
+  }, [showErrorModal])
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSelectChange = (name: string, value: string) => {
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleSave = async ({
     closeAfterSave,
   }: {
-    closeAfterSave: boolean;
+    closeAfterSave: boolean
   }) => {
-    const hasAny = Object.values(form).some((value) => value.trim());
+    const hasAny = Object.values(form).some((value) => value.trim())
     if (!hasAny) {
-      setShowValidationModal(true);
-      return;
+      setShowValidationModal(true)
+      return
     }
 
-    setIsSaving(true);
+    setIsSaving(closeAfterSave)
 
     try {
       const res = await fetch("/api/flashcards", {
         method: "POST",
         body: JSON.stringify(form),
         headers: { "Content-Type": "application/json" },
-      });
+      })
 
-      const result = await res.json();
+      const result = await res.json()
 
-      if (!res.ok) throw new Error(result.error);
+      if (!res.ok) throw new Error(result.error)
 
       // Limpa os campos após o sucesso
-      setForm({ title: "", subtitle: "", description: "", backContent: "" });
-      setShowSuccessModal(true); // Exibe o modal de sucesso
+      setForm({ title: "", subtitle: "", description: "", backContent: "", category: "", subject: "" })
+      setShowSuccessModal(true) // Exibe o modal de sucesso
 
       // Chama onFlashcardCreated para atualizar a lista de flashcards na HomePage
-      onFlashcardCreated(result.flashcard);
+      onFlashcardCreated(result.flashcard)
 
       // Se for para fechar o formulário, chama onClose após mostrar o modal
       if (closeAfterSave) {
         // Não fecha o formulário imediatamente, aguarda o modal aparecer
         setTimeout(() => {
-          onClose(); // Fecha o formulário após 2 segundos do sucesso
-        }, 2000);
+          onClose() // Fecha o formulário após 2 segundos do sucesso
+        }, 2000)
       }
     } catch (err) {
-      setShowErrorModal(true);
+      setShowErrorModal(true)
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  };
+  }
 
   return (
     <>
-      <div className="w-full max-w-md mx-auto mt-8 p-6 border rounded-2xl shadow-md bg-white">
-        <div className="space-y-4">
-          <Input
-            name="title"
-            placeholder="Título principal"
-            value={form.title}
-            onChange={handleChange}
-          />
-          <Input
-            name="subtitle"
-            placeholder="Título secundário"
-            value={form.subtitle}
-            onChange={handleChange}
-          />
-          <Textarea
-            name="description"
-            placeholder="Descrição ou conteúdo"
-            value={form.description}
-            onChange={handleChange}
-          />
-          <Textarea
-            name="backContent"
-            placeholder="Conteúdo do verso (resposta, explicação...)"
-            value={form.backContent}
-            onChange={handleChange}
-          />
-        </div>
-
-        <div className="mt-6 flex justify-end gap-3">
-          {/* Botão para salvar e adicionar outro flashcard */}
-          <Button
-            onClick={() => handleSave({ closeAfterSave: false })}
-            disabled={isSaving}
-            variant="secondary"
-          >
-            <Save className="mr-2 h-4 w-4" />
-            Salvar e adicionar outro
+      <Card className="w-full max-w-2xl mx-auto mb-8 shadow-md">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-xl">Criar novo flashcard</CardTitle>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="h-4 w-4" />
           </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Input
+                  name="title"
+                  placeholder="Título principal"
+                  value={form.title}
+                  onChange={handleChange}
+                  className="mb-2"
+                />
+                <Input name="subtitle" placeholder="Título secundário" value={form.subtitle} onChange={handleChange} />
+              </div>
+              <div>
+                <div className="mb-2">
+                  <Select value={form.category} onValueChange={(value) => handleSelectChange("category", value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione uma categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.length === 0 ? (
+                        <SelectItem value="none" disabled>
+                          Nenhuma categoria disponível
+                        </SelectItem>
+                      ) : (
+                        <>
+                          <SelectItem value="none">Nenhuma categoria</SelectItem>
+                          {categories.map((category, index) => (
+                            <SelectItem key={index} value={category}>
+                              {category}
+                            </SelectItem>
+                          ))}
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Select value={form.subject} onValueChange={(value) => handleSelectChange("subject", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione um assunto" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subjects.length === 0 ? (
+                      <SelectItem value="none" disabled>
+                        Nenhum assunto disponível
+                      </SelectItem>
+                    ) : (
+                      <>
+                        <SelectItem value="none">Nenhum assunto</SelectItem>
+                        {subjects.map((subject, index) => (
+                          <SelectItem key={index} value={subject}>
+                            {subject}
+                          </SelectItem>
+                        ))}
+                      </>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
 
-          {/* Botão para salvar e fechar o formulário */}
-          <Button
-            onClick={() => handleSave({ closeAfterSave: true })}
-            disabled={isSaving}
-          >
-            <Save className="mr-2 h-4 w-4" />
-            Salvar
-          </Button>
-        </div>
-      </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Textarea
+                name="description"
+                placeholder="Descrição ou conteúdo (frente do card)"
+                value={form.description}
+                onChange={handleChange}
+                className="h-[104px]"
+              />
+              <Textarea
+                name="backContent"
+                placeholder="Conteúdo do verso (resposta, explicação...)"
+                value={form.backContent}
+                onChange={handleChange}
+                className="h-[104px]"
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-end gap-3">
+            {/* Botão para salvar e adicionar outro flashcard */}
+            <Button onClick={() => handleSave({ closeAfterSave: false })} disabled={isSaving} variant="secondary">
+              <Save className="mr-2 h-4 w-4" />
+              Salvar e adicionar outro
+            </Button>
+
+            {/* Botão para salvar e fechar o formulário */}
+            <Button onClick={() => handleSave({ closeAfterSave: true })} disabled={isSaving}>
+              <Save className="mr-2 h-4 w-4" />
+              Salvar
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* ✅ Modal - Sucesso */}
       <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
@@ -193,5 +268,6 @@ export default function FlashcardForm({
         </DialogContent>
       </Dialog>
     </>
-  );
+  )
 }
+

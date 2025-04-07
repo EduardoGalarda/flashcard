@@ -1,9 +1,11 @@
 export interface FlashcardType {
-    id: string; // Identificador único do flashcard
-    title: string; // Título principal
-    subtitle: string; // Título secundário
-    description: string; // Descrição ou conteúdo principal
-    backContent: string; // Conteúdo do verso (resposta ou explicação)
-    createdAt: string; // Data de criação
-  }
-  
+  id: string
+  title: string
+  subtitle: string
+  description: string
+  backContent: string
+  category: string
+  subject: string
+  createdAt: string
+}
+
