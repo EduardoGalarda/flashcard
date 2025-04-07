@@ -30,20 +30,7 @@ export default function Navbar({ onCreateClick }: NavbarProps) {
           <h1 className="text-xl font-semibold" style={{ color: "var(--sidebar-foreground)" }}>
             Flashcards
           </h1>
-          <div className="flex items-center gap-2">
-            <Button
-              onClick={handleSettingsClick}
-              variant="outline"
-              className="flex items-center gap-2"
-              style={{
-                backgroundColor: "transparent",
-                color: "var(--sidebar-foreground)",
-                borderColor: "var(--sidebar-foreground)",
-              }}
-            >
-              <Settings className="h-4 w-4" />
-              Configurações
-            </Button>
+          <div className="flex items-center gap-3">
             <Button
               onClick={onCreateClick}
               className="flex items-center gap-2"
@@ -54,6 +41,18 @@ export default function Navbar({ onCreateClick }: NavbarProps) {
             >
               <PlusCircle className="h-4 w-4" />
               Criar flashcard
+            </Button>
+            <Button
+              onClick={handleSettingsClick}
+              variant="ghost"
+              size="icon"
+              className="rounded-full"
+              style={{
+                color: "var(--sidebar-foreground)",
+              }}
+            >
+              <Settings className="h-5 w-5" />
+              <span className="sr-only">Configurações</span>
             </Button>
           </div>
         </div>
