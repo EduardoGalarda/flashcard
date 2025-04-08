@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import type { FlashcardType } from "@/types/Flashcard"
 import { Button } from "@/components/ui/button"
-import { RefreshCw, Edit, Save, X, Trash2, Tag, BookOpen } from "lucide-react"
+import { RefreshCw, Edit, Save, X, Trash2, Tag, BookOpen, Maximize2, Minimize2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -29,9 +29,19 @@ interface FlashcardProps {
   onDelete?: (id: string) => void
   onFilterByCategory?: (category: string) => void
   onFilterBySubject?: (subject: string) => void
+  onSelectCard?: (id: string) => void
+  isSelected?: boolean
 }
 
-export default function Flashcard({ card, onUpdate, onDelete, onFilterByCategory, onFilterBySubject }: FlashcardProps) {
+export default function Flashcard({
+  card,
+  onUpdate,
+  onDelete,
+  onFilterByCategory,
+  onFilterBySubject,
+  onSelectCard,
+  isSelected = false,
+}: FlashcardProps) {
   const [isFlipped, setIsFlipped] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editForm, setEditForm] = useState({
@@ -203,6 +213,12 @@ export default function Flashcard({ card, onUpdate, onDelete, onFilterByCategory
     }
   }
 
+  const handleSelectClick = () => {
+    if (onSelectCard) {
+      onSelectCard(card.id)
+    }
+  }
+
   useEffect(() => {
     // Restaurar os valores originais
     setEditForm({
@@ -356,13 +372,20 @@ export default function Flashcard({ card, onUpdate, onDelete, onFilterByCategory
   // Modo de visualização (frente ou verso)
   return (
     <>
-      <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg">
+      <Card
+        className={`overflow-hidden transition-all duration-300 hover:shadow-lg ${isSelected ? "ring-2 ring-primary" : ""}`}
+      >
         {!isFlipped ? (
           // Frente do card
           <div className="flex flex-col h-full">
             <CardHeader className="pb-2 flex flex-row items-start justify-between">
-              <div>
-                <CardTitle className="text-xl">{card.title || "Sem título"}</CardTitle>
+              <div className="cursor-pointer group" onClick={handleSelectClick}>
+                <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                  {card.title || "Sem título"}
+                  <span className="inline-block ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {isSelected ? <Minimize2 className="h-4 w-4 inline" /> : <Maximize2 className="h-4 w-4 inline" />}
+                  </span>
+                </CardTitle>
                 {card.subtitle && <p className="text-sm text-muted-foreground">{card.subtitle}</p>}
               </div>
               <div className="flex gap-1">
@@ -432,7 +455,14 @@ export default function Flashcard({ card, onUpdate, onDelete, onFilterByCategory
           // Verso do card
           <div className="flex flex-col h-full">
             <CardHeader className="pb-2 flex flex-row items-start justify-between">
-              <CardTitle className="text-xl">{card.title || "Sem título"}</CardTitle>
+              <div className="cursor-pointer group" onClick={handleSelectClick}>
+                <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                  {card.title || "Sem título"}
+                  <span className="inline-block ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {isSelected ? <Minimize2 className="h-4 w-4 inline" /> : <Maximize2 className="h-4 w-4 inline" />}
+                  </span>
+                </CardTitle>
+              </div>
               <div className="flex gap-1">
                 <Button
                   variant="ghost"

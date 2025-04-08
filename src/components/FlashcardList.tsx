@@ -14,6 +14,7 @@ export default function FlashcardList({ flashcards: initialFlashcards }: { flash
     subject: "",
     searchQuery: "",
   })
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
 
   // Atualizar o estado local quando as props mudarem
   useEffect(() => {
@@ -26,30 +27,35 @@ export default function FlashcardList({ flashcards: initialFlashcards }: { flash
   useEffect(() => {
     let result = [...flashcards]
 
-    // Filtrar por categoria
-    if (filters.category) {
-      result = result.filter((card) => card.category === filters.category)
-    }
+    // Se um card específico está selecionado, mostrar apenas ele
+    if (selectedCardId) {
+      result = result.filter((card) => card.id === selectedCardId)
+    } else {
+      // Filtrar por categoria
+      if (filters.category) {
+        result = result.filter((card) => card.category === filters.category)
+      }
 
-    // Filtrar por assunto
-    if (filters.subject) {
-      result = result.filter((card) => card.subject === filters.subject)
-    }
+      // Filtrar por assunto
+      if (filters.subject) {
+        result = result.filter((card) => card.subject === filters.subject)
+      }
 
-    // Filtrar por texto de pesquisa
-    if (filters.searchQuery) {
-      const query = filters.searchQuery.toLowerCase()
-      result = result.filter(
-        (card) =>
-          card.title.toLowerCase().includes(query) ||
-          card.subtitle.toLowerCase().includes(query) ||
-          card.description.toLowerCase().includes(query) ||
-          card.backContent.toLowerCase().includes(query),
-      )
+      // Filtrar por texto de pesquisa
+      if (filters.searchQuery) {
+        const query = filters.searchQuery.toLowerCase()
+        result = result.filter(
+          (card) =>
+            card.title.toLowerCase().includes(query) ||
+            card.subtitle.toLowerCase().includes(query) ||
+            card.description.toLowerCase().includes(query) ||
+            card.backContent.toLowerCase().includes(query),
+        )
+      }
     }
 
     setFilteredFlashcards(result)
-  }, [flashcards, filters])
+  }, [flashcards, filters, selectedCardId])
 
   // Função para atualizar um flashcard na lista
   const handleUpdateFlashcard = (updatedCard: FlashcardType) => {
@@ -58,22 +64,45 @@ export default function FlashcardList({ flashcards: initialFlashcards }: { flash
 
   // Função para remover um flashcard da lista
   const handleDeleteFlashcard = (id: string) => {
+    if (selectedCardId === id) {
+      setSelectedCardId(null)
+    }
     setFlashcards((prevCards) => prevCards.filter((card) => card.id !== id))
   }
 
   // Função para atualizar os filtros
   const handleFilterChange = useCallback((newFilters: { category: string; subject: string; searchQuery: string }) => {
     setFilters(newFilters)
+    // Limpar a seleção de card quando os filtros mudam
+    setSelectedCardId(null)
   }, [])
 
   // Funções para filtrar por categoria ou assunto ao clicar no card
   const handleFilterByCategory = useCallback((category: string) => {
     setFilters((prev) => ({ ...prev, category }))
+    setSelectedCardId(null)
   }, [])
 
   const handleFilterBySubject = useCallback((subject: string) => {
     setFilters((prev) => ({ ...prev, subject }))
+    setSelectedCardId(null)
   }, [])
+
+  // Função para selecionar um card específico
+  const handleSelectCard = useCallback(
+    (id: string) => {
+      setSelectedCardId((prevId) => (prevId === id ? null : id))
+      // Limpar outros filtros quando um card é selecionado
+      if (selectedCardId !== id) {
+        setFilters({
+          category: "",
+          subject: "",
+          searchQuery: "",
+        })
+      }
+    },
+    [selectedCardId],
+  )
 
   return (
     <div>
@@ -105,6 +134,8 @@ export default function FlashcardList({ flashcards: initialFlashcards }: { flash
                 onDelete={handleDeleteFlashcard}
                 onFilterByCategory={handleFilterByCategory}
                 onFilterBySubject={handleFilterBySubject}
+                onSelectCard={handleSelectCard}
+                isSelected={selectedCardId === card.id}
               />
             ))}
           </div>
