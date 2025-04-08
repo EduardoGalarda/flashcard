@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge"
 import { useTheme } from "@/components/theme-provider"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { useMobile } from "@/hooks/use-mobile"
 
 interface SettingsFormProps {
   onClose: () => void
@@ -43,6 +44,7 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
   const [showLimitModal, setShowLimitModal] = useState(false)
   const [currentView, setCurrentView] = useState<SettingsView>("main")
   const { theme, setTheme } = useTheme()
+  const { isMobile } = useMobile()
 
   // Carregar categorias e assuntos ao iniciar
   useEffect(() => {
@@ -231,14 +233,15 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
   const renderCategoriesContent = () => {
     return (
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-center gap-2">
           <Input
             placeholder="Nova categoria"
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAddCategory()}
+            className="w-full sm:flex-1"
           />
-          <Button onClick={handleAddCategory} disabled={!newCategory.trim()}>
+          <Button onClick={handleAddCategory} disabled={!newCategory.trim()} className="w-full sm:w-auto mt-2 sm:mt-0">
             <Plus className="h-4 w-4 mr-1" />
             Adicionar
           </Button>
@@ -273,14 +276,15 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
   const renderSubjectsContent = () => {
     return (
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-center gap-2">
           <Input
             placeholder="Novo assunto"
             value={newSubject}
             onChange={(e) => setNewSubject(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAddSubject()}
+            className="w-full sm:flex-1"
           />
-          <Button onClick={handleAddSubject} disabled={!newSubject.trim()}>
+          <Button onClick={handleAddSubject} disabled={!newSubject.trim()} className="w-full sm:w-auto mt-2 sm:mt-0">
             <Plus className="h-4 w-4 mr-1" />
             Adicionar
           </Button>
@@ -390,17 +394,17 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
             {renderBackButton()}
             <CardTitle className="text-xl">{getHeaderTitle()}</CardTitle>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} className="touch-manipulation">
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
         <CardContent>{renderContent()}</CardContent>
         {shouldShowSaveButton() && (
-          <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline" onClick={onClose} disabled={isSaving}>
+          <CardFooter className="flex flex-col sm:flex-row justify-end gap-2">
+            <Button variant="outline" onClick={onClose} disabled={isSaving} className="w-full sm:w-auto">
               Cancelar
             </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
+            <Button onClick={handleSave} disabled={isSaving} className="w-full sm:w-auto">
               <Save className="h-4 w-4 mr-2" />
               Salvar
             </Button>
@@ -410,7 +414,7 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
 
       {/* Modal de sucesso */}
       <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-        <DialogContent className="flex items-center gap-3 text-green-600 text-center justify-center">
+        <DialogContent className="flex items-center gap-3 text-green-600 text-center justify-center max-w-xs sm:max-w-md">
           <CheckCircle className="w-6 h-6" />
           <DialogHeader>
             <DialogTitle>Configurações salvas com sucesso!</DialogTitle>
@@ -420,7 +424,7 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
 
       {/* Modal de erro */}
       <Dialog open={showErrorModal} onOpenChange={setShowErrorModal}>
-        <DialogContent className="flex items-center gap-3 text-red-600 text-center justify-center">
+        <DialogContent className="flex items-center gap-3 text-red-600 text-center justify-center max-w-xs sm:max-w-md">
           <XCircle className="w-6 h-6" />
           <DialogHeader>
             <DialogTitle>Erro ao salvar configurações.</DialogTitle>
@@ -430,7 +434,7 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
 
       {/* Modal de limite */}
       <Dialog open={showLimitModal} onOpenChange={setShowLimitModal}>
-        <DialogContent className="flex items-center gap-3 text-yellow-600 text-center justify-center">
+        <DialogContent className="flex items-center gap-3 text-yellow-600 text-center justify-center max-w-xs sm:max-w-md">
           <AlertTriangle className="w-6 h-6" />
           <DialogHeader>
             <DialogTitle>Limite máximo de 10 itens atingido.</DialogTitle>

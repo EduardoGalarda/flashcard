@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { FlashcardType } from "@/types/Flashcard"
 import MarkdownGuide from "./MarkdownGuide"
+import { useMobile } from "@/hooks/use-mobile"
 
 export default function FlashcardForm({
   onClose,
@@ -34,6 +35,7 @@ export default function FlashcardForm({
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const [showValidationModal, setShowValidationModal] = useState(false)
   const [showErrorModal, setShowErrorModal] = useState(false)
+  const { isMobile } = useMobile()
 
   // Carregar categorias e assuntos ao iniciar
   useEffect(() => {
@@ -92,11 +94,7 @@ export default function FlashcardForm({
     setForm((prev) => ({ ...prev, [name]: finalValue }))
   }
 
-  const handleSave = async ({
-    closeAfterSave,
-  }: {
-    closeAfterSave: boolean
-  }) => {
+  const handleSave = async ({ closeAfterSave }: { closeAfterSave: boolean }) => {
     const hasAny = Object.values(form).some((value) => value.trim())
     if (!hasAny) {
       setShowValidationModal(true)
@@ -142,7 +140,7 @@ export default function FlashcardForm({
       <Card className="w-full max-w-2xl mx-auto mb-8 shadow-md">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-xl">Criar novo flashcard</CardTitle>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} className="touch-manipulation">
             <X className="h-4 w-4" />
           </Button>
         </CardHeader>
@@ -162,7 +160,7 @@ export default function FlashcardForm({
               <div>
                 <div className="mb-2">
                   <Select value={form.category} onValueChange={(value) => handleSelectChange("category", value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione uma categoria" />
                     </SelectTrigger>
                     <SelectContent>
@@ -184,7 +182,7 @@ export default function FlashcardForm({
                   </Select>
                 </div>
                 <Select value={form.subject} onValueChange={(value) => handleSelectChange("subject", value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione um assunto" />
                   </SelectTrigger>
                   <SelectContent>
@@ -240,15 +238,24 @@ export default function FlashcardForm({
             </div>
           </div>
 
-          <div className="mt-6 flex justify-end gap-3">
+          <div className="mt-6 flex flex-col sm:flex-row justify-end gap-3">
             {/* Botão para salvar e adicionar outro flashcard */}
-            <Button onClick={() => handleSave({ closeAfterSave: false })} disabled={isSaving} variant="secondary">
+            <Button
+              onClick={() => handleSave({ closeAfterSave: false })}
+              disabled={isSaving}
+              variant="secondary"
+              className="w-full sm:w-auto"
+            >
               <Save className="mr-2 h-4 w-4" />
               Salvar e adicionar outro
             </Button>
 
             {/* Botão para salvar e fechar o formulário */}
-            <Button onClick={() => handleSave({ closeAfterSave: true })} disabled={isSaving}>
+            <Button
+              onClick={() => handleSave({ closeAfterSave: true })}
+              disabled={isSaving}
+              className="w-full sm:w-auto"
+            >
               <Save className="mr-2 h-4 w-4" />
               Salvar
             </Button>
@@ -258,7 +265,7 @@ export default function FlashcardForm({
 
       {/* ✅ Modal - Sucesso */}
       <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-        <DialogContent className="flex items-center gap-3 text-green-600 text-center justify-center">
+        <DialogContent className="flex items-center gap-3 text-green-600 text-center justify-center max-w-xs sm:max-w-md">
           <CheckCircle className="w-6 h-6" />
           <DialogHeader>
             <DialogTitle>Flashcard salvo com sucesso!</DialogTitle>
@@ -268,7 +275,7 @@ export default function FlashcardForm({
 
       {/* ⚠️ Modal - Validação */}
       <Dialog open={showValidationModal} onOpenChange={setShowValidationModal}>
-        <DialogContent className="flex items-center gap-3 text-yellow-600 text-center justify-center">
+        <DialogContent className="flex items-center gap-3 text-yellow-600 text-center justify-center max-w-xs sm:max-w-md">
           <AlertTriangle className="w-6 h-6" />
           <DialogHeader>
             <DialogTitle>Preencha pelo menos um campo.</DialogTitle>
@@ -278,7 +285,7 @@ export default function FlashcardForm({
 
       {/* ❌ Modal - Erro */}
       <Dialog open={showErrorModal} onOpenChange={setShowErrorModal}>
-        <DialogContent className="flex items-center gap-3 text-red-600 text-center justify-center">
+        <DialogContent className="flex items-center gap-3 text-red-600 text-center justify-center max-w-xs sm:max-w-md">
           <XCircle className="w-6 h-6" />
           <DialogHeader>
             <DialogTitle>Erro ao salvar o flashcard.</DialogTitle>

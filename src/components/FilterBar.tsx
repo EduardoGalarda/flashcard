@@ -7,8 +7,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Filter, X, Tag, BookOpen, Search } from "lucide-react"
+import { Filter, X, Tag, BookOpen, Search, ChevronDown, ChevronUp } from "lucide-react"
 import { Input } from "@/components/ui/input"
+import { useMobile } from "@/hooks/use-mobile"
 
 interface FilterBarProps {
   onFilterChange: (filters: { category: string; subject: string; searchQuery: string }) => void
@@ -25,6 +26,17 @@ export default function FilterBar({ onFilterChange, totalCards, filteredCount, a
   const [categories, setCategories] = useState<string[]>([])
   const [subjects, setSubjects] = useState<string[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
+  const [showFilters, setShowFilters] = useState(true)
+  const { isMobile } = useMobile()
+
+  // Em dispositivos móveis, iniciar com os filtros recolhidos
+  useEffect(() => {
+    if (isMobile) {
+      setShowFilters(false)
+    } else {
+      setShowFilters(true)
+    }
+  }, [isMobile])
 
   // Carregar categorias e assuntos ao iniciar
   useEffect(() => {
@@ -99,6 +111,10 @@ export default function FilterBar({ onFilterChange, totalCards, filteredCount, a
     })
   }
 
+  const toggleFilters = () => {
+    setShowFilters(!showFilters)
+  }
+
   return (
     <Card className="mb-6">
       <CardContent className="pt-6">
@@ -124,108 +140,147 @@ export default function FilterBar({ onFilterChange, totalCards, filteredCount, a
             )}
           </div>
 
+          {/* Botão para mostrar/esconder filtros em dispositivos móveis */}
+          {isMobile && (
+            <Button
+              variant="outline"
+              onClick={toggleFilters}
+              className="flex items-center justify-between w-full"
+              size="sm"
+            >
+              <span className="flex items-center">
+                <Filter className="h-4 w-4 mr-2" />
+                Filtros
+                {isFiltering && (
+                  <Badge variant="secondary" className="ml-2">
+                    {filteredCount}/{totalCards}
+                  </Badge>
+                )}
+              </span>
+              {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+          )}
+
           {/* Filtros */}
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
-            <div className="flex items-center gap-2">
-              <Filter className="h-5 w-5 text-muted-foreground" />
-              <span className="font-medium">Filtrar por</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-grow">
-              <Select value={activeFilters.category || "all"} onValueChange={handleCategoryChange}>
-                <SelectTrigger className="w-full">
+          {showFilters && (
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                {!isMobile && (
                   <div className="flex items-center gap-2">
-                    <Tag className="h-4 w-4" />
-                    <SelectValue placeholder="Todas as categorias" />
+                    <Filter className="h-5 w-5 text-muted-foreground" />
+                    <span className="font-medium">Filtrar por</span>
                   </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas as categorias</SelectItem>
-                  {categories.map((category, index) => (
-                    <SelectItem key={index} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                )}
 
-              <Select value={activeFilters.subject || "all"} onValueChange={handleSubjectChange}>
-                <SelectTrigger className="w-full">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4" />
-                    <SelectValue placeholder="Todos os assuntos" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todos os assuntos</SelectItem>
-                  {subjects.map((subject, index) => (
-                    <SelectItem key={index} value={subject}>
-                      {subject}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-grow">
+                  <Select value={activeFilters.category || "all"} onValueChange={handleCategoryChange}>
+                    <SelectTrigger className="w-full">
+                      <div className="flex items-center gap-2">
+                        <Tag className="h-4 w-4" />
+                        <SelectValue placeholder="Todas as categorias" />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todas as categorias</SelectItem>
+                      {categories.map((category, index) => (
+                        <SelectItem key={index} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={activeFilters.subject || "all"} onValueChange={handleSubjectChange}>
+                    <SelectTrigger className="w-full">
+                      <div className="flex items-center gap-2">
+                        <BookOpen className="h-4 w-4" />
+                        <SelectValue placeholder="Todos os assuntos" />
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Todos os assuntos</SelectItem>
+                      {subjects.map((subject, index) => (
+                        <SelectItem key={index} value={subject}>
+                          {subject}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {isFiltering && !isMobile && (
+                  <Button variant="outline" size="sm" onClick={handleClearFilters} className="flex items-center gap-1">
+                    <X className="h-4 w-4" />
+                    Limpar tudo
+                  </Button>
+                )}
+              </div>
+
+              {isFiltering && (
+                <div className="mt-2 flex flex-wrap gap-2 items-center">
+                  <span className="text-sm text-muted-foreground">Filtros ativos:</span>
+                  {activeFilters.searchQuery && (
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      <Search className="h-3 w-3" />
+                      {activeFilters.searchQuery}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleClearSearch}
+                        className="h-4 w-4 ml-1 p-0 hover:bg-transparent"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </Badge>
+                  )}
+                  {activeFilters.category && (
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      <Tag className="h-3 w-3" />
+                      {activeFilters.category}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleClearCategory}
+                        className="h-4 w-4 ml-1 p-0 hover:bg-transparent"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </Badge>
+                  )}
+                  {activeFilters.subject && (
+                    <Badge variant="secondary" className="flex items-center gap-1">
+                      <BookOpen className="h-3 w-3" />
+                      {activeFilters.subject}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleClearSubject}
+                        className="h-4 w-4 ml-1 p-0 hover:bg-transparent"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </Badge>
+                  )}
+                  {isMobile && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleClearFilters}
+                      className="flex items-center gap-1 ml-auto"
+                    >
+                      <X className="h-4 w-4" />
+                      Limpar
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              <div className="text-sm text-right text-muted-foreground">
+                Mostrando {filteredCount} de {totalCards} flashcards
+              </div>
             </div>
-
-            {isFiltering && (
-              <Button variant="outline" size="sm" onClick={handleClearFilters} className="flex items-center gap-1">
-                <X className="h-4 w-4" />
-                Limpar tudo
-              </Button>
-            )}
-          </div>
+          )}
         </div>
-
-        {isFiltering && (
-          <div className="mt-4 flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-muted-foreground">Filtros ativos:</span>
-            {activeFilters.searchQuery && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <Search className="h-3 w-3" />
-                {activeFilters.searchQuery}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleClearSearch}
-                  className="h-4 w-4 ml-1 p-0 hover:bg-transparent"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </Badge>
-            )}
-            {activeFilters.category && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <Tag className="h-3 w-3" />
-                {activeFilters.category}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleClearCategory}
-                  className="h-4 w-4 ml-1 p-0 hover:bg-transparent"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </Badge>
-            )}
-            {activeFilters.subject && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <BookOpen className="h-3 w-3" />
-                {activeFilters.subject}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleClearSubject}
-                  className="h-4 w-4 ml-1 p-0 hover:bg-transparent"
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </Badge>
-            )}
-            <span className="text-sm ml-auto">
-              Mostrando {filteredCount} de {totalCards} flashcards
-            </span>
-          </div>
-        )}
       </CardContent>
     </Card>
   )

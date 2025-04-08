@@ -57,7 +57,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background">
       <Navbar onCreateClick={handleCreateClick} />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         {showForm && <FlashcardForm onClose={handleCloseForm} onFlashcardCreated={handleFlashcardCreated} />}
 
         {isLoading ? (

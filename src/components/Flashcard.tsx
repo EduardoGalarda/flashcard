@@ -22,6 +22,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import MarkdownRenderer from "./MarkdownRenderer"
 import MarkdownGuide from "./MarkdownGuide"
+import { useMobile } from "@/hooks/use-mobile"
 
 interface FlashcardProps {
   card: FlashcardType
@@ -61,6 +62,7 @@ export default function Flashcard({
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false)
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false)
   const [showDeleteErrorModal, setShowDeleteErrorModal] = useState(false)
+  const { isMobile } = useMobile()
 
   // Carregar categorias e assuntos ao iniciar
   useEffect(() => {
@@ -349,7 +351,7 @@ export default function Flashcard({
 
         {/* Modais de feedback */}
         <Dialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
-          <DialogContent className="flex items-center gap-3 text-green-600 text-center justify-center">
+          <DialogContent className="flex items-center gap-3 text-green-600 text-center justify-center max-w-xs sm:max-w-md">
             <CheckCircle className="w-6 h-6" />
             <DialogHeader>
               <DialogTitle>Flashcard atualizado com sucesso!</DialogTitle>
@@ -358,7 +360,7 @@ export default function Flashcard({
         </Dialog>
 
         <Dialog open={showErrorModal} onOpenChange={setShowErrorModal}>
-          <DialogContent className="flex items-center gap-3 text-red-600 text-center justify-center">
+          <DialogContent className="flex items-center gap-3 text-red-600 text-center justify-center max-w-xs sm:max-w-md">
             <XCircle className="w-6 h-6" />
             <DialogHeader>
               <DialogTitle>Erro ao atualizar o flashcard.</DialogTitle>
@@ -445,7 +447,13 @@ export default function Flashcard({
               </div>
 
               <div className="flex justify-end mt-4">
-                <Button variant="outline" size="icon" onClick={handleFlip} className="h-8 w-8" disabled={isDeleting}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleFlip}
+                  className="h-8 w-8 touch-manipulation"
+                  disabled={isDeleting}
+                >
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               </div>
@@ -520,7 +528,13 @@ export default function Flashcard({
               </div>
 
               <div className="flex justify-end mt-4">
-                <Button variant="outline" size="icon" onClick={handleFlip} className="h-8 w-8" disabled={isDeleting}>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleFlip}
+                  className="h-8 w-8 touch-manipulation"
+                  disabled={isDeleting}
+                >
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               </div>
@@ -531,18 +545,23 @@ export default function Flashcard({
 
       {/* Modal de confirmação de exclusão */}
       <Dialog open={showDeleteConfirmModal} onOpenChange={setShowDeleteConfirmModal}>
-        <DialogContent>
+        <DialogContent className="max-w-xs sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Confirmar exclusão</DialogTitle>
             <DialogDescription>
               Tem certeza que deseja excluir este flashcard? Esta ação não pode ser desfeita.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-end gap-2">
-            <Button variant="outline" onClick={handleDeleteCancel} disabled={isDeleting}>
+          <DialogFooter className="flex flex-col sm:flex-row justify-end gap-2">
+            <Button variant="outline" onClick={handleDeleteCancel} disabled={isDeleting} className="w-full sm:w-auto">
               Cancelar
             </Button>
-            <Button variant="destructive" onClick={handleDeleteConfirm} disabled={isDeleting}>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="w-full sm:w-auto"
+            >
               {isDeleting ? "Excluindo..." : "Excluir"}
             </Button>
           </DialogFooter>
@@ -551,7 +570,7 @@ export default function Flashcard({
 
       {/* Modal de sucesso na exclusão */}
       <Dialog open={showDeleteSuccessModal} onOpenChange={setShowDeleteSuccessModal}>
-        <DialogContent className="flex items-center gap-3 text-green-600 text-center justify-center">
+        <DialogContent className="flex items-center gap-3 text-green-600 text-center justify-center max-w-xs sm:max-w-md">
           <CheckCircle className="w-6 h-6" />
           <DialogHeader>
             <DialogTitle>Flashcard excluído com sucesso!</DialogTitle>
@@ -561,7 +580,7 @@ export default function Flashcard({
 
       {/* Modal de erro na exclusão */}
       <Dialog open={showDeleteErrorModal} onOpenChange={setShowDeleteErrorModal}>
-        <DialogContent className="flex items-center gap-3 text-red-600 text-center justify-center">
+        <DialogContent className="flex items-center gap-3 text-red-600 text-center justify-center max-w-xs sm:max-w-md">
           <XCircle className="w-6 h-6" />
           <DialogHeader>
             <DialogTitle>Erro ao excluir o flashcard.</DialogTitle>

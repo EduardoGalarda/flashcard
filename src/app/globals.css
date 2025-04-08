@@ -131,6 +131,28 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Melhorar a experiência de toque */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* Aumentar áreas clicáveis em dispositivos móveis */
+  @media (max-width: 640px) {
+    button,
+    [role="button"],
+    .clickable {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    input,
+    select,
+    textarea {
+      font-size: 16px; /* Evita zoom automático em iOS */
+    }
   }
 }
 

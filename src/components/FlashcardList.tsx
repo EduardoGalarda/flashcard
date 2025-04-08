@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import type { FlashcardType } from "@/types/Flashcard"
 import Flashcard from "@/components/Flashcard"
 import FilterBar from "@/components/FilterBar"
+import { useMobile } from "@/hooks/use-mobile"
 
 export default function FlashcardList({ flashcards: initialFlashcards }: { flashcards: FlashcardType[] }) {
   // Estado local para gerenciar os flashcards
@@ -15,6 +16,7 @@ export default function FlashcardList({ flashcards: initialFlashcards }: { flash
     searchQuery: "",
   })
   const [selectedCardId, setSelectedCardId] = useState<string | null>(null)
+  const { isMobile } = useMobile()
 
   // Atualizar o estado local quando as props mudarem
   useEffect(() => {
@@ -125,7 +127,7 @@ export default function FlashcardList({ flashcards: initialFlashcards }: { flash
             <p className="text-muted-foreground mt-2">Tente ajustar os filtros para ver mais resultados</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredFlashcards.map((card) => (
               <Flashcard
                 key={card.id}
