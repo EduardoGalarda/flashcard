@@ -356,7 +356,7 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
                   variant="ghost"
                   size="icon"
                   onClick={handleDeleteClick}
-                  className="h-8 w-8 -mt-1 text-red-500 hover:text-red-700 hover:bg-red-50"
+                  className="h-8 w-8 -mt-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
                   disabled={isDeleting}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -416,7 +416,7 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
                   variant="ghost"
                   size="icon"
                   onClick={handleDeleteClick}
-                  className="h-8 w-8 -mt-1 text-red-500 hover:text-red-700 hover:bg-red-50"
+                  className="h-8 w-8 -mt-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
                   disabled={isDeleting}
                 >
                   <Trash2 className="h-4 w-4" />

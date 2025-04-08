@@ -46,7 +46,7 @@ export default function Navbar({ onCreateClick }: NavbarProps) {
               onClick={handleSettingsClick}
               variant="ghost"
               size="icon"
-              className="rounded-full"
+              className="rounded-full hover:bg-transparent"
               style={{
                 color: "var(--sidebar-foreground)",
               }}
@@ -62,4 +62,3 @@ export default function Navbar({ onCreateClick }: NavbarProps) {
     </>
   )
 }
-

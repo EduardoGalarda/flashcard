@@ -28,9 +28,9 @@ export default function FlashcardList({ flashcards: initialFlashcards }: { flash
   return (
     <div className="mt-8">
       {flashcards.length === 0 ? (
-        <div className="text-center p-8 bg-white rounded-lg shadow-sm border">
-          <h3 className="text-xl font-medium text-gray-700">Nenhum flashcard ainda</h3>
-          <p className="text-gray-500 mt-2">Clique em "Criar flashcard" para começar</p>
+        <div className="text-center p-8 bg-card rounded-lg shadow-sm border">
+          <h3 className="text-xl font-medium text-card-foreground">Nenhum flashcard ainda</h3>
+          <p className="text-muted-foreground mt-2">Clique em "Criar flashcard" para começar</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -42,4 +42,3 @@ export default function FlashcardList({ flashcards: initialFlashcards }: { flash
     </div>
   )
 }
-

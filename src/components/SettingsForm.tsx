@@ -16,9 +16,15 @@ import {
   Palette,
   SettingsIcon,
   Tag,
+  Moon,
+  Sun,
+  Monitor,
 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
+import { useTheme } from "@/components/theme-provider"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
 
 interface SettingsFormProps {
   onClose: () => void
@@ -36,7 +42,7 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [showLimitModal, setShowLimitModal] = useState(false)
   const [currentView, setCurrentView] = useState<SettingsView>("main")
-  const [activeContentTab, setActiveContentTab] = useState("categories")
+  const { theme, setTheme } = useTheme()
 
   // Carregar categorias e assuntos ao iniciar
   useEffect(() => {
@@ -308,9 +314,38 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
 
   const renderAppearanceContent = () => {
     return (
-      <div className="p-4 border rounded-md bg-muted/30">
-        <h3 className="text-lg font-medium mb-2">Aparência</h3>
-        <p className="text-muted-foreground">Configurações de aparência serão implementadas em breve.</p>
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-medium mb-4">Tema</h3>
+          <RadioGroup value={theme} onValueChange={(value) => setTheme(value as "light" | "dark" | "system")}>
+            <div className="flex items-center space-x-2 mb-3">
+              <RadioGroupItem value="light" id="theme-light" />
+              <Label htmlFor="theme-light" className="flex items-center cursor-pointer">
+                <Sun className="h-5 w-5 mr-2" />
+                Claro
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2 mb-3">
+              <RadioGroupItem value="dark" id="theme-dark" />
+              <Label htmlFor="theme-dark" className="flex items-center cursor-pointer">
+                <Moon className="h-5 w-5 mr-2" />
+                Escuro
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="system" id="theme-system" />
+              <Label htmlFor="theme-system" className="flex items-center cursor-pointer">
+                <Monitor className="h-5 w-5 mr-2" />
+                Sistema
+              </Label>
+            </div>
+          </RadioGroup>
+        </div>
+
+        <div className="p-4 border rounded-md bg-muted/30">
+          <h3 className="text-lg font-medium mb-2">Personalização</h3>
+          <p className="text-muted-foreground">Mais opções de personalização serão implementadas em breve.</p>
+        </div>
       </div>
     )
   }
@@ -405,4 +440,3 @@ export default function SettingsForm({ onClose }: SettingsFormProps) {
     </>
   )
 }
-

@@ -16,9 +16,15 @@ export default function Home() {
     try {
       setIsLoading(true)
       const res = await fetch("/api/flashcards")
+
+      if (!res.ok) {
+        throw new Error("Falha ao carregar flashcards")
+      }
+
       const data = await res.json()
 
       if (Array.isArray(data.flashcards)) {
+        console.log("Flashcards carregados:", data.flashcards.length)
         setFlashcards(data.flashcards)
       } else {
         console.error("Dados de flashcards inválidos:", data)
@@ -49,14 +55,14 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-background">
       <Navbar onCreateClick={handleCreateClick} />
       <div className="container mx-auto px-4 py-8">
         {showForm && <FlashcardForm onClose={handleCloseForm} onFlashcardCreated={handleFlashcardCreated} />}
 
         {isLoading ? (
           <div className="flex justify-center mt-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
         ) : (
           <FlashcardList flashcards={flashcards} />
@@ -65,4 +71,3 @@ export default function Home() {
     </main>
   )
 }
-
