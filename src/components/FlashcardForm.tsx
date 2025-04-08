@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { FlashcardType } from "@/types/Flashcard"
+import MarkdownGuide from "./MarkdownGuide"
 
 export default function FlashcardForm({
   onClose,
@@ -86,7 +87,9 @@ export default function FlashcardForm({
   }
 
   const handleSelectChange = (name: string, value: string) => {
-    setForm((prev) => ({ ...prev, [name]: value }))
+    // Se o valor for "none-value", armazenamos como string vazia
+    const finalValue = value === "none-value" ? "" : value
+    setForm((prev) => ({ ...prev, [name]: finalValue }))
   }
 
   const handleSave = async ({
@@ -169,7 +172,7 @@ export default function FlashcardForm({
                         </SelectItem>
                       ) : (
                         <>
-                          <SelectItem value="none">Nenhuma categoria</SelectItem>
+                          <SelectItem value="none-value">Nenhuma categoria</SelectItem>
                           {categories.map((category, index) => (
                             <SelectItem key={index} value={category}>
                               {category}
@@ -191,7 +194,7 @@ export default function FlashcardForm({
                       </SelectItem>
                     ) : (
                       <>
-                        <SelectItem value="none">Nenhum assunto</SelectItem>
+                        <SelectItem value="none-value">Nenhum assunto</SelectItem>
                         {subjects.map((subject, index) => (
                           <SelectItem key={index} value={subject}>
                             {subject}
@@ -204,20 +207,35 @@ export default function FlashcardForm({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-sm font-medium">
+                  Descrição (frente) <span className="text-xs text-muted-foreground">suporta Markdown</span>
+                </label>
+                <MarkdownGuide />
+              </div>
               <Textarea
                 name="description"
-                placeholder="Descrição ou conteúdo (frente do card)"
+                placeholder="Descrição ou conteúdo (suporta Markdown)"
                 value={form.description}
                 onChange={handleChange}
-                className="h-[104px]"
+                className="min-h-[120px] font-mono text-sm"
               />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-sm font-medium">
+                  Conteúdo do verso <span className="text-xs text-muted-foreground">suporta Markdown</span>
+                </label>
+                <MarkdownGuide />
+              </div>
               <Textarea
                 name="backContent"
-                placeholder="Conteúdo do verso (resposta, explicação...)"
+                placeholder="Conteúdo do verso (suporta Markdown)"
                 value={form.backContent}
                 onChange={handleChange}
-                className="h-[104px]"
+                className="min-h-[120px] font-mono text-sm"
               />
             </div>
           </div>
@@ -270,4 +288,3 @@ export default function FlashcardForm({
     </>
   )
 }
-

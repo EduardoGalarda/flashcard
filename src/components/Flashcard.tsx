@@ -20,6 +20,8 @@ import {
 import { CheckCircle, XCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import MarkdownRenderer from "./MarkdownRenderer"
+import MarkdownGuide from "./MarkdownGuide"
 
 interface FlashcardProps {
   card: FlashcardType
@@ -97,7 +99,9 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
   }
 
   const handleSelectChange = (name: string, value: string) => {
-    setEditForm((prev) => ({ ...prev, [name]: value }))
+    // Se o valor for "none-value", armazenamos como string vazia
+    const finalValue = value === "none-value" ? "" : value
+    setEditForm((prev) => ({ ...prev, [name]: finalValue }))
   }
 
   const handleSave = async () => {
@@ -185,6 +189,19 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
     setShowDeleteConfirmModal(false)
   }
 
+  useEffect(() => {
+    // Restaurar os valores originais
+    setEditForm({
+      title: card.title,
+      subtitle: card.subtitle,
+      description: card.description,
+      backContent: card.backContent,
+      category: card.category || "",
+      subject: card.subject || "",
+    })
+    setIsEditing(false)
+  }, [card])
+
   // Modo de edição
   if (isEditing) {
     return (
@@ -219,7 +236,7 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
                       </SelectItem>
                     ) : (
                       <>
-                        <SelectItem value="none">Nenhuma categoria</SelectItem>
+                        <SelectItem value="none-value">Nenhuma categoria</SelectItem>
                         {categories.map((category, index) => (
                           <SelectItem key={index} value={category}>
                             {category}
@@ -243,7 +260,7 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
                       </SelectItem>
                     ) : (
                       <>
-                        <SelectItem value="none">Nenhum assunto</SelectItem>
+                        <SelectItem value="none-value">Nenhum assunto</SelectItem>
                         {subjects.map((subject, index) => (
                           <SelectItem key={index} value={subject}>
                             {subject}
@@ -257,24 +274,34 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-1 block">Descrição (frente)</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-sm font-medium">
+                  Descrição (frente) <span className="text-xs text-muted-foreground">suporta Markdown</span>
+                </label>
+                <MarkdownGuide />
+              </div>
               <Textarea
                 name="description"
                 value={editForm.description}
                 onChange={handleChange}
-                placeholder="Descrição ou conteúdo"
-                className="min-h-[80px]"
+                placeholder="Descrição ou conteúdo (suporta Markdown)"
+                className="min-h-[120px] font-mono text-sm"
               />
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-1 block">Conteúdo do verso</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-sm font-medium">
+                  Conteúdo do verso <span className="text-xs text-muted-foreground">suporta Markdown</span>
+                </label>
+                <MarkdownGuide />
+              </div>
               <Textarea
                 name="backContent"
                 value={editForm.backContent}
                 onChange={handleChange}
-                placeholder="Conteúdo do verso (resposta)"
-                className="min-h-[80px]"
+                placeholder="Conteúdo do verso (suporta Markdown)"
+                className="min-h-[120px] font-mono text-sm"
               />
             </div>
           </div>
@@ -364,7 +391,14 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
                 </div>
               )}
 
-              <p className="flex-grow">{card.description || "Sem descrição"}</p>
+              <div className="flex-grow">
+                {card.description ? (
+                  <MarkdownRenderer content={card.description} />
+                ) : (
+                  <p className="text-muted-foreground italic">Sem descrição</p>
+                )}
+              </div>
+
               <div className="flex justify-end mt-4">
                 <Button variant="outline" size="icon" onClick={handleFlip} className="h-8 w-8" disabled={isDeleting}>
                   <RefreshCw className="h-4 w-4" />
@@ -417,7 +451,14 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
                 </div>
               )}
 
-              <p className="flex-grow">{card.backContent || "Sem conteúdo no verso"}</p>
+              <div className="flex-grow">
+                {card.backContent ? (
+                  <MarkdownRenderer content={card.backContent} />
+                ) : (
+                  <p className="text-muted-foreground italic">Sem conteúdo no verso</p>
+                )}
+              </div>
+
               <div className="flex justify-end mt-4">
                 <Button variant="outline" size="icon" onClick={handleFlip} className="h-8 w-8" disabled={isDeleting}>
                   <RefreshCw className="h-4 w-4" />
@@ -470,4 +511,3 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
     </>
   )
 }
-
