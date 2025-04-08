@@ -27,9 +27,11 @@ interface FlashcardProps {
   card: FlashcardType
   onUpdate?: (updatedCard: FlashcardType) => void
   onDelete?: (id: string) => void
+  onFilterByCategory?: (category: string) => void
+  onFilterBySubject?: (subject: string) => void
 }
 
-export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) {
+export default function Flashcard({ card, onUpdate, onDelete, onFilterByCategory, onFilterBySubject }: FlashcardProps) {
   const [isFlipped, setIsFlipped] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editForm, setEditForm] = useState({
@@ -187,6 +189,18 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
 
   const handleDeleteCancel = () => {
     setShowDeleteConfirmModal(false)
+  }
+
+  const handleCategoryClick = () => {
+    if (card.category && onFilterByCategory) {
+      onFilterByCategory(card.category)
+    }
+  }
+
+  const handleSubjectClick = () => {
+    if (card.subject && onFilterBySubject) {
+      onFilterBySubject(card.subject)
+    }
   }
 
   useEffect(() => {
@@ -377,13 +391,21 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
               {(card.category || card.subject) && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {card.category && (
-                    <Badge variant="outline" className="flex items-center gap-1">
+                    <Badge
+                      variant="outline"
+                      className="flex items-center gap-1 cursor-pointer hover:bg-secondary"
+                      onClick={handleCategoryClick}
+                    >
                       <Tag className="h-3 w-3" />
                       {card.category}
                     </Badge>
                   )}
                   {card.subject && (
-                    <Badge variant="outline" className="flex items-center gap-1">
+                    <Badge
+                      variant="outline"
+                      className="flex items-center gap-1 cursor-pointer hover:bg-secondary"
+                      onClick={handleSubjectClick}
+                    >
                       <BookOpen className="h-3 w-3" />
                       {card.subject}
                     </Badge>
@@ -437,13 +459,21 @@ export default function Flashcard({ card, onUpdate, onDelete }: FlashcardProps) 
               {(card.category || card.subject) && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {card.category && (
-                    <Badge variant="outline" className="flex items-center gap-1">
+                    <Badge
+                      variant="outline"
+                      className="flex items-center gap-1 cursor-pointer hover:bg-secondary"
+                      onClick={handleCategoryClick}
+                    >
                       <Tag className="h-3 w-3" />
                       {card.category}
                     </Badge>
                   )}
                   {card.subject && (
-                    <Badge variant="outline" className="flex items-center gap-1">
+                    <Badge
+                      variant="outline"
+                      className="flex items-center gap-1 cursor-pointer hover:bg-secondary"
+                      onClick={handleSubjectClick}
+                    >
                       <BookOpen className="h-3 w-3" />
                       {card.subject}
                     </Badge>
