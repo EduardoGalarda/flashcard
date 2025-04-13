@@ -69,7 +69,10 @@ export default function Navbar({ onCreateClick }: NavbarProps) {
                   <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-3 mt-6">
-                  <Button onClick={handleCreateClickMobile} className="flex items-center gap-2 w-full justify-start">
+                  <Button
+                    onClick={handleCreateClickMobile}
+                    className="flex items-center gap-2 w-full justify-start bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
                     <PlusCircle className="h-4 w-4" />
                     Criar flashcard
                   </Button>
@@ -87,7 +90,10 @@ export default function Navbar({ onCreateClick }: NavbarProps) {
           ) : (
             // Menu desktop
             <div className="flex items-center gap-3">
-              <Button onClick={onCreateClick} className="flex items-center gap-2">
+              <Button
+                onClick={onCreateClick}
+                className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+              >
                 <PlusCircle className="h-4 w-4" />
                 Criar flashcard
               </Button>
